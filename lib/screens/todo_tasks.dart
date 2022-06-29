@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import '../models/task.dart';
 
 class ToDoTasks extends StatefulWidget {
@@ -9,8 +10,8 @@ class ToDoTasks extends StatefulWidget {
 }
 
 class _ToDoTasksState extends State<ToDoTasks> {
-  List<Task> taskList = [
-    Task(title: "lorem"),
+  final List<Task> _taskList = [
+    Task(title: "lorem delete"),
     Task(title: "lorem"),
     Task(title: "lorem"),
     Task(title: "lorem"),
@@ -23,16 +24,33 @@ class _ToDoTasksState extends State<ToDoTasks> {
   ];
 
   Widget _buildRow(Task singleTask) {
-    return ListTile(
-      title: Text(
-        singleTask.title,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontSize: 18.0),
+    return Slidable(
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (context) {
+              setState(() {
+                _taskList.remove(singleTask);
+              });
+            },
+            backgroundColor: const Color(0xFFFE4A49),
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+          )
+        ],
       ),
-      subtitle: Text(
-        singleTask.content,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontSize: 16.0),
+      child: ListTile(
+        title: Text(
+          singleTask.title,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 18.0),
+        ),
+        subtitle: Text(
+          singleTask.content,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 16.0),
+        ),
       ),
     );
   }
@@ -52,8 +70,8 @@ class _ToDoTasksState extends State<ToDoTasks> {
               child: FractionallySizedBox(
                 heightFactor: 0.9,
                 child: ListView.separated(
-                  itemCount: taskList.length,
-                  itemBuilder: (context, index) => _buildRow(taskList[index]),
+                  itemCount: _taskList.length,
+                  itemBuilder: (context, index) => _buildRow(_taskList[index]),
                   separatorBuilder: (context, index) => const Divider(),
                 ),
               ),
@@ -61,7 +79,7 @@ class _ToDoTasksState extends State<ToDoTasks> {
             const SizedBox(
               height: 20.0,
             ),
-            Center(child: Text("${taskList.length} notes")),
+            Center(child: Text("${_taskList.length} notes")),
           ],
         ),
       ),
