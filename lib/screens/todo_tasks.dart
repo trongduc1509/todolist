@@ -57,7 +57,13 @@ class _ToDoTasksState extends State<ToDoTasks> {
         onTap: () async {
           final result = await Navigator.of(context)
               .pushNamed(TaskDetail.id, arguments: singleTask);
-          if (result == true) {}
+          if (result != null) {
+            //test add
+            setState(() {
+              _taskList.remove(singleTask);
+              _taskList.add(result as Task);
+            });
+          }
         },
       ),
     );
@@ -67,7 +73,7 @@ class _ToDoTasksState extends State<ToDoTasks> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notes'),
+        title: const Text('Tasks'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -95,7 +101,11 @@ class _ToDoTasksState extends State<ToDoTasks> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.of(context).pushNamed(TaskDetail.id);
-          if (result == true) {}
+          if (result != null) {
+            setState(() {
+              _taskList.add(result as Task);
+            });
+          }
         },
         child: const Icon(Icons.add),
       ),

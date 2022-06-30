@@ -30,13 +30,15 @@ class _TaskDetailState extends State<TaskDetail> {
     _taskContentController.addListener(() => setState(() => _onChange = true));
   }
 
-  Future<bool?> _onBackPressed(BuildContext context) async => showDialog<bool>(
+  Future<bool?> _onEmptyTitle(BuildContext context) async => showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
             title: const Text('Pls fill title of this task'),
             actions: [
               ElevatedButton(
-                  onPressed: () => Navigator.pop(context, false),
+                  onPressed: () {
+                    return Navigator.of(context).pop(false);
+                  },
                   child: const Text('OK'))
             ],
           ));
@@ -45,10 +47,33 @@ class _TaskDetailState extends State<TaskDetail> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (_taskTitleController.text.isEmpty &&
-            _taskContentController.text.isNotEmpty) {
-          final warning = await _onBackPressed(context);
-          return warning ?? false;
+        final bool? warning;
+        if (widget.task == null) {
+          if (_taskTitleController.text.isEmpty &&
+              _taskContentController.text.isNotEmpty) {
+            warning = await _onEmptyTitle(context);
+            return warning ?? false;
+          }
+        } else {
+          if (_taskTitleController.text.isEmpty) {
+            warning = await _onEmptyTitle(context);
+            return warning ?? false;
+          }
+        }
+        if (_taskTitleController.text.isEmpty) {
+          Navigator.of(context).pop();
+        } else {
+          if (widget.task != null) {
+            Navigator.of(context).pop(Task(
+                id: widget.task!.id,
+                title: _taskTitleController.text,
+                content: _taskContentController.text));
+          } else {
+            Navigator.of(context).pop(Task(
+                id: 1,
+                title: _taskTitleController.text,
+                content: _taskContentController.text));
+          }
         }
         return true;
       },
@@ -59,7 +84,33 @@ class _TaskDetailState extends State<TaskDetail> {
             _onChange
                 ? TextButton(
                     onPressed: () {
-                      if (_taskTitleController.text.isEmpty) {}
+                      if (_taskTitleController.text.isEmpty) {
+                        //Check empty title
+                        if (widget.task == null &&
+                            _taskContentController.text.isEmpty) {
+                          return Navigator.of(context).pop();
+                        }
+                        _onEmptyTitle(context);
+                      } else {
+                        //Title not empty
+                        if (widget.task != null) {
+                          //Editting task
+                          if (widget.task!.content !=
+                                  _taskContentController.text ||
+                              widget.task!.title != _taskTitleController.text) {
+                            return Navigator.of(context).pop(Task(
+                                id: widget.task!.id,
+                                title: _taskTitleController.text,
+                                content: _taskContentController.text));
+                          }
+                          return Navigator.of(context).pop();
+                        }
+                        //Adding task
+                        return Navigator.of(context).pop(Task(
+                            id: 1,
+                            title: _taskTitleController.text,
+                            content: _taskContentController.text));
+                      }
                     },
                     child: const Text(
                       'DONE',
