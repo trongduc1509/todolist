@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:todolist/screens/task_detail.dart';
 import '../models/task.dart';
 
 class ToDoTasks extends StatefulWidget {
+  static const id = 'todo_tasks_screen';
+
   const ToDoTasks({Key? key}) : super(key: key);
 
   @override
@@ -23,7 +26,7 @@ class _ToDoTasksState extends State<ToDoTasks> {
     Task(title: "lorem"),
   ];
 
-  Widget _buildRow(Task singleTask) {
+  Widget _buildRow(BuildContext context, Task singleTask) {
     return Slidable(
       endActionPane: ActionPane(
         motion: const DrawerMotion(),
@@ -51,6 +54,11 @@ class _ToDoTasksState extends State<ToDoTasks> {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 16.0),
         ),
+        onTap: () async {
+          final result = await Navigator.of(context)
+              .pushNamed(TaskDetail.id, arguments: singleTask);
+          if (result == true) {}
+        },
       ),
     );
   }
@@ -71,7 +79,8 @@ class _ToDoTasksState extends State<ToDoTasks> {
                 heightFactor: 0.9,
                 child: ListView.separated(
                   itemCount: _taskList.length,
-                  itemBuilder: (context, index) => _buildRow(_taskList[index]),
+                  itemBuilder: (context, index) =>
+                      _buildRow(context, _taskList[index]),
                   separatorBuilder: (context, index) => const Divider(),
                 ),
               ),
@@ -79,12 +88,15 @@ class _ToDoTasksState extends State<ToDoTasks> {
             const SizedBox(
               height: 20.0,
             ),
-            Center(child: Text("${_taskList.length} notes")),
+            Center(child: Text("${_taskList.length} tasks to do")),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async {
+          final result = await Navigator.of(context).pushNamed(TaskDetail.id);
+          if (result == true) {}
+        },
         child: const Icon(Icons.add),
       ),
     );
