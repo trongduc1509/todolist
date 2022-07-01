@@ -4,6 +4,7 @@ import './screens/task_detail.dart';
 import './models/task.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

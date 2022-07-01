@@ -1,33 +1,38 @@
+const String tableTask = 'tasks';
+
+class TaskFields {
+  static const List<String> values = [id, title, content];
+
+  static const String id = '_id';
+  static const String title = 'title';
+  static const String content = 'content';
+}
+
 class Task {
-  late int _id;
-  late String _title;
-  late String _content;
+  final int? id;
+  final String title;
+  final String content;
 
-  Task(
-      {int id = 1,
-      required String title,
-      String content =
-          'lorem content, some description, some description, some description, some description, some description, some description, some description, some description, some description, some description, some description, some description, some description'}) {
-    _id = id;
-    _title = title;
-    _content = content;
-  }
+  Task({this.id, required this.title, required this.content});
 
-  set id(int id) {
-    _id = id;
-  }
+  static Task fromJSON(Map<String, Object?> map) => Task(
+      id: map[TaskFields.id] as int?,
+      title: map[TaskFields.title] as String,
+      content: map[TaskFields.content] as String);
 
-  set title(String title) {
-    _title = title;
-  }
+  Task copy({
+    int? id,
+    String? title,
+    String? content,
+  }) =>
+      Task(
+          id: id ?? this.id,
+          title: title ?? this.title,
+          content: content ?? this.content);
 
-  set content(String content) {
-    _content = content;
-  }
-
-  int get id => _id;
-
-  String get title => _title;
-
-  String get content => _content;
+  Map<String, Object?> toJSON() => {
+        TaskFields.id: id,
+        TaskFields.title: title,
+        TaskFields.content: content,
+      };
 }

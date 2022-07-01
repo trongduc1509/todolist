@@ -13,18 +13,7 @@ class ToDoTasks extends StatefulWidget {
 }
 
 class _ToDoTasksState extends State<ToDoTasks> {
-  final List<Task> _taskList = [
-    Task(title: "lorem delete"),
-    Task(title: "lorem"),
-    Task(title: "lorem"),
-    Task(title: "lorem"),
-    Task(title: "lorem"),
-    Task(title: "lorem"),
-    Task(title: "lorem"),
-    Task(title: "lorem"),
-    Task(title: "lorem"),
-    Task(title: "lorem"),
-  ];
+  final List<Task> _taskList = [];
 
   Widget _buildRow(BuildContext context, Task singleTask) {
     return Slidable(
