@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:todolist/screens/task_detail.dart';
 import '../models/task.dart';
+import '../db/tasks_database.dart';
 
 class ToDoTasks extends StatefulWidget {
   static const id = 'todo_tasks_screen';
@@ -13,7 +14,27 @@ class ToDoTasks extends StatefulWidget {
 }
 
 class _ToDoTasksState extends State<ToDoTasks> {
-  final List<Task> _taskList = [];
+  List<Task> taskList = [];
+  late TaskDatabase taskDb;
+
+  @override
+  void initState() {
+    super.initState();
+    taskDb = TaskDatabase();
+    getTasks();
+  }
+
+  void getTasks() async {
+    List<Task> tempList = await taskDb.readAllTask();
+    setState(() {
+      taskList = tempList;
+    });
+  }
+
+  Future<void> deleteTask(int taskId) async {
+    await taskDb.deleteTask(taskId);
+    getTasks();
+  }
 
   Widget _buildRow(BuildContext context, Task singleTask) {
     return Slidable(
@@ -22,9 +43,28 @@ class _ToDoTasksState extends State<ToDoTasks> {
         children: [
           SlidableAction(
             onPressed: (context) {
-              setState(() {
-                _taskList.remove(singleTask);
-              });
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Confirm your deletion'),
+                      content: const Text(
+                          'Your task will be deleted permanently! Do you want to do it?'),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('CANCEL')),
+                        TextButton(
+                            onPressed: () {
+                              deleteTask(singleTask.id!);
+                              Navigator.pop(context);
+                            },
+                            child: const Text('CONFIRM'))
+                      ],
+                    );
+                  });
             },
             backgroundColor: const Color(0xFFFE4A49),
             foregroundColor: Colors.white,
@@ -47,11 +87,7 @@ class _ToDoTasksState extends State<ToDoTasks> {
           final result = await Navigator.of(context)
               .pushNamed(TaskDetail.id, arguments: singleTask);
           if (result != null) {
-            //test add
-            setState(() {
-              _taskList.remove(singleTask);
-              _taskList.add(result as Task);
-            });
+            getTasks();
           }
         },
       ),
@@ -73,9 +109,9 @@ class _ToDoTasksState extends State<ToDoTasks> {
               child: FractionallySizedBox(
                 heightFactor: 0.9,
                 child: ListView.separated(
-                  itemCount: _taskList.length,
+                  itemCount: taskList.length,
                   itemBuilder: (context, index) =>
-                      _buildRow(context, _taskList[index]),
+                      _buildRow(context, taskList[index]),
                   separatorBuilder: (context, index) => const Divider(),
                 ),
               ),
@@ -83,7 +119,7 @@ class _ToDoTasksState extends State<ToDoTasks> {
             const SizedBox(
               height: 20.0,
             ),
-            Center(child: Text("${_taskList.length} tasks to do")),
+            Center(child: Text("${taskList.length} tasks to do")),
           ],
         ),
       ),
@@ -92,7 +128,7 @@ class _ToDoTasksState extends State<ToDoTasks> {
           final result = await Navigator.of(context).pushNamed(TaskDetail.id);
           if (result != null) {
             setState(() {
-              _taskList.add(result as Task);
+              taskList.add(result as Task);
             });
           }
         },

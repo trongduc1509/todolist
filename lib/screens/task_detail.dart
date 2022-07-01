@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todolist/db/tasks_database.dart';
 import '../models/task.dart';
 
 class TaskDetail extends StatefulWidget {
@@ -32,7 +33,7 @@ class _TaskDetailState extends State<TaskDetail> {
   Future<bool?> _onEmptyTitle(BuildContext context) async => showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-            title: const Text('Pls fill title of this task'),
+            title: const Text('Please fill title of this task'),
             actions: [
               ElevatedButton(
                   onPressed: () {
@@ -41,6 +42,21 @@ class _TaskDetailState extends State<TaskDetail> {
                   child: const Text('OK'))
             ],
           ));
+
+  Future<Task> addTask() async {
+    final taskDb = TaskDatabase();
+    return await taskDb.createTask(Task(
+        title: _taskTitleController.text.trim(),
+        content: _taskContentController.text.trim()));
+  }
+
+  Future<int> updateTask() async {
+    final taskDb = TaskDatabase();
+    return await taskDb.updateTask(Task(
+        id: widget.task!.id,
+        title: _taskTitleController.text.trim(),
+        content: _taskContentController.text.trim()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,16 +76,14 @@ class _TaskDetailState extends State<TaskDetail> {
           if (widget.task != null) {
             if (widget.task!.content != _taskContentController.text ||
                 widget.task!.title != _taskTitleController.text) {
-              Navigator.of(context).pop(Task(
-                  id: widget.task!.id,
-                  title: _taskTitleController.text,
-                  content: _taskContentController.text));
+              final updatedTaskId = await updateTask();
+              if (!mounted) return false;
+              Navigator.of(context).pop(updatedTaskId);
             }
           } else {
-            Navigator.of(context).pop(Task(
-                id: 1,
-                title: _taskTitleController.text,
-                content: _taskContentController.text));
+            final newTask = await addTask();
+            if (!mounted) return false;
+            Navigator.of(context).pop(newTask);
           }
         }
         return true;
@@ -80,7 +94,7 @@ class _TaskDetailState extends State<TaskDetail> {
           actions: [
             _onChange
                 ? TextButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_taskTitleController.text.isEmpty) {
                         //Check empty title
                         if (widget.task == null &&
@@ -95,18 +109,16 @@ class _TaskDetailState extends State<TaskDetail> {
                           if (widget.task!.content !=
                                   _taskContentController.text ||
                               widget.task!.title != _taskTitleController.text) {
-                            return Navigator.of(context).pop(Task(
-                                id: widget.task!.id,
-                                title: _taskTitleController.text,
-                                content: _taskContentController.text));
+                            final updatedTaskId = await updateTask();
+                            if (!mounted) return;
+                            return Navigator.of(context).pop(updatedTaskId);
                           }
                           return Navigator.of(context).pop();
                         }
                         //Adding task
-                        return Navigator.of(context).pop(Task(
-                            id: 1,
-                            title: _taskTitleController.text,
-                            content: _taskContentController.text));
+                        final newTask = await addTask();
+                        if (!mounted) return;
+                        return Navigator.of(context).pop(newTask);
                       }
                     },
                     child: const Text(

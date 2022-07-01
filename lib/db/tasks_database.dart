@@ -1,10 +1,14 @@
 import 'package:sqflite/sqflite.dart';
 import '../models/task.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 
 class TaskDatabase {
   static final TaskDatabase instance = TaskDatabase._init();
   static Database? _db;
+
+  factory TaskDatabase() {
+    return instance;
+  }
 
   TaskDatabase._init();
 
@@ -17,7 +21,7 @@ class TaskDatabase {
   }
 
   Future<Database> initDb(String filePath) async {
-    String dbpath = join(await getDatabasesPath(), filePath);
+    String dbpath = p.join(await getDatabasesPath(), filePath);
     return await openDatabase(dbpath, version: 1, onCreate: _onCreate);
   }
 
@@ -29,8 +33,7 @@ class TaskDatabase {
     await db.execute('''CREATE TABLE $tableTask (
       ${TaskFields.id} $idType,
       ${TaskFields.title} $titleType,
-      ${TaskFields.content} $contentType,
-)''');
+      ${TaskFields.content} $contentType)''');
   }
 
   Future<void> close() async {
