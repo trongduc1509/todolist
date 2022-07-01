@@ -19,7 +19,6 @@ class _TaskDetailState extends State<TaskDetail> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Task? task = widget.task;
     if (task != null) {
@@ -48,26 +47,24 @@ class _TaskDetailState extends State<TaskDetail> {
     return WillPopScope(
       onWillPop: () async {
         final bool? warning;
-        if (widget.task == null) {
-          if (_taskTitleController.text.isEmpty &&
-              _taskContentController.text.isNotEmpty) {
-            warning = await _onEmptyTitle(context);
-            return warning ?? false;
-          }
-        } else {
-          if (_taskTitleController.text.isEmpty) {
-            warning = await _onEmptyTitle(context);
-            return warning ?? false;
-          }
+        if ((widget.task == null &&
+                _taskTitleController.text.isEmpty &&
+                _taskContentController.text.isNotEmpty) ||
+            (widget.task != null && _taskTitleController.text.isEmpty)) {
+          warning = await _onEmptyTitle(context);
+          return warning ?? false;
         }
         if (_taskTitleController.text.isEmpty) {
           Navigator.of(context).pop();
         } else {
           if (widget.task != null) {
-            Navigator.of(context).pop(Task(
-                id: widget.task!.id,
-                title: _taskTitleController.text,
-                content: _taskContentController.text));
+            if (widget.task!.content != _taskContentController.text ||
+                widget.task!.title != _taskTitleController.text) {
+              Navigator.of(context).pop(Task(
+                  id: widget.task!.id,
+                  title: _taskTitleController.text,
+                  content: _taskContentController.text));
+            }
           } else {
             Navigator.of(context).pop(Task(
                 id: 1,
