@@ -68,9 +68,11 @@ class TaskDatabase {
   Future<List<Task>> readAllTask() async {
     final dtb = await instance.db;
 
-    final result = await dtb.query(tableTask);
+    List<Map<String, Object?>> result = await dtb.query(tableTask);
 
-    return result.map((e) => Task.fromJSON(e)).toList();
+    final convertedResult = result.map((e) => Task.fromJSON(e)).toList();
+
+    return convertedResult.reversed.toList();
   }
 
   Future<int> updateTask(Task task) async {

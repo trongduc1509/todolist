@@ -127,9 +127,7 @@ class _ToDoTasksState extends State<ToDoTasks> {
         onPressed: () async {
           final result = await Navigator.of(context).pushNamed(TaskDetail.id);
           if (result != null) {
-            setState(() {
-              taskList.add(result as Task);
-            });
+            getTasks();
           }
         },
         child: const Icon(Icons.add),
